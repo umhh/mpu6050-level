@@ -85,6 +85,7 @@
 
 <div class="buttons">
   <button class="btn connect" id="connectBtn" onclick="bleConnect()">Verbinden</button>
+  <button class="btn" id="disconnectBtn" onclick="bleDisconnect()" style="display:none">Trennen</button>
   <button class="btn" onclick="openSetup()">Setup</button>
 </div>
 <div id="status">Getrennt</div>
@@ -153,16 +154,21 @@
       sensorChar.addEventListener('characteristicvaluechanged', onSensorData);
 
       setStatus('Verbunden','#4a5');
-      document.getElementById('connectBtn').textContent='Verbunden';
+      document.getElementById('connectBtn').style.display='none';
+      document.getElementById('disconnectBtn').style.display='';
     } catch(e) {
       setStatus('Fehler: '+e.message,'#c44');
-      document.getElementById('connectBtn').textContent='Verbinden';
     }
+  }
+
+  function bleDisconnect(){
+    if(bleDevice && bleDevice.gatt.connected) bleDevice.gatt.disconnect();
   }
 
   function onDisconnect(){
     setStatus('Getrennt','#c44');
-    document.getElementById('connectBtn').textContent='Verbinden';
+    document.getElementById('connectBtn').style.display='';
+    document.getElementById('disconnectBtn').style.display='none';
     sensorChar=null; configChar=null;
   }
 
