@@ -136,11 +136,14 @@
       sensorChar = await service.getCharacteristic(SENSOR);
       configChar = await service.getCharacteristic(CONFIG);
 
-      // Config vom ESP32 lesen: "adv,sleep"
+      // Config vom ESP32 lesen: "ma,tol,adv,sleep"
       var val = await configChar.readValue();
       var cfg = new TextDecoder().decode(val).split(',');
-      if(cfg.length>=2){
-        var a=parseInt(cfg[0]), s=parseInt(cfg[1]);
+      if(cfg.length>=4){
+        var m=parseFloat(cfg[0]), t=parseFloat(cfg[1]);
+        var a=parseInt(cfg[2]), s=parseInt(cfg[3]);
+        if(m>=1 && m<=90) MA=m;
+        if(t>=0.01 && t<=10) TOL=t;
         if(a>=5 && a<=300) ADV=a;
         if(s>=5 && s<=300) SLEEP=s;
       }
@@ -203,7 +206,7 @@
     if(configChar){
       try {
         var enc=new TextEncoder();
-        await configChar.writeValue(enc.encode(ADV+','+SLEEP));
+        await configChar.writeValue(enc.encode(MA.toFixed(1)+','+TOL.toFixed(2)+','+ADV+','+SLEEP));
       } catch(e){ console.log('Config write error:',e); }
     }
     closeSetup();
